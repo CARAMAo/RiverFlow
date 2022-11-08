@@ -1,0 +1,24 @@
+{
+  "name": "riverflow",
+  "version": "1.0.0",
+  "description": "River Flow monitoring app using a serverless architecture",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "iot",
+    "aws",
+    "localstack",
+    "dynamo",
+    "dynamodb",
+    "nosql",
+    "serverless",
+    "lambda",
+    "sqs",
+    "node",
+    "javascript"
+  ],
+  "author": "Pasquale Caramante",
+  "license": "ISC"
+}
