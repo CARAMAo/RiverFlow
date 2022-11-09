@@ -1,5 +1,5 @@
 {
-	"name": "avg_stream_func",
+	"name": "avg_speed_func",
 	"dependencies": {
 		"aws-sdk": "^2.1233.0"
 	}

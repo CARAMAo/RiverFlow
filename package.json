@@ -4,7 +4,11 @@
   "description": "River Flow monitoring app using a serverless architecture",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "depth-queue": "aws sqs create-queue --queue-name depth --endpoint-url http://localhost:4566",
+    "speed-queue": "aws sqs create-queue --queue-name speed --endpoint-url http://localhost:4566",
+    "sqs":"npm run depth-queue & npm run speed-queue",
+    "dynamo":"node settings/dynamo_init.js"
   },
   "keywords": [
     "iot",
@@ -20,5 +24,8 @@
     "javascript"
   ],
   "author": "Pasquale Caramante",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1249.0"
+  }
 }
