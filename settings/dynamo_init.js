@@ -13,18 +13,26 @@ var params = {
       AttributeName: 'sensor_id',
       AttributeType: 'N'
     },
+    {
+      AttributeName: 'river',
+      AttributeType: 'S',
+    }
   ],
   KeySchema: [
     {
+      AttributeName: 'river',
+      KeyType:'HASH',
+    },
+    {
       AttributeName: 'sensor_id',
-      KeyType: 'HASH'
+      KeyType: 'RANGE'
     },
   ],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1
   },
-  TableName: 'Sele',
+  TableName: 'river',
   StreamSpecification: {
     StreamEnabled: false
   }

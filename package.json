@@ -5,10 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "depth-queue": "aws sqs create-queue --queue-name depth --endpoint-url http://localhost:4566",
-    "speed-queue": "aws sqs create-queue --queue-name speed --endpoint-url http://localhost:4566",
-    "sqs":"npm run depth-queue & npm run speed-queue",
-    "dynamo":"node settings/dynamo_init.js"
+    "localstack": "docker run --rm -it -p 4566:4566 -p 4571:4571 localstack/localstack",
+    "hydrometric-queue": "aws sqs create-queue --queue-name hydrometric_SELE --endpoint-url http://localhost:4566",
+    "alert queue": "aws sqs create-queue --queue-name alert_SELE --endpoint-url http://localhost:4566",
+    "sqs":"npm run hydrometric-queue",
+    "dynamo":"node settings/dynamo_init.js",
+    "create-lambdarole":"aws iam create-role --role-name lambdarole --assume-role-policy-document file://settings/role_policy.json --query 'Role.Arn' --endpoint-url=http://localhost:4566",
+    "assign-role-policy":"aws iam put-role-policy --role-name lambdarole --policy-name lambdapolicy --policy-document file://settings/policy.json --endpoint-url=http://localhost:4566",
+    "zip-hydrometric-func":"rm hydrometric_func.zip; zip hydrometric_func.zip -r ./hydrometric_func/*",
+    "predeploy-hydrometric-func":"npm run create-lambdarole; npm run assign-role-policy; npm run zip-hydrometric-func",
+    "deploy-hydrometric-func":"aws lambda create-function --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --handler ./hydrometric_func/hydrometric_func.handler --runtime nodejs12.x --role arn:aws:iam::000000000000:role/lambdarole --endpoint-url=http://localhost:4566",
+    "postdeploy-hydrometric-func":"rm hydrometric_func.zip",
+    "update-hydrometric-func":"aws lambda update-function-code --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --endpoint-url http://localhost:4566"
   },
   "keywords": [
     "iot",
