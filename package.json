@@ -5,18 +5,29 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "localstack": "docker run --rm -it -p 4566:4566 -p 4571:4571 localstack/localstack",
+    "localstack": "docker run --rm -it -p 4566:4566 -p 4571:4571 --env EXTRA_CORS_ALLOWED_ORIGINS=http://localhost:1234 localstack/localstack",
     "hydrometric-queue": "aws sqs create-queue --queue-name hydrometric_SELE --endpoint-url http://localhost:4566",
     "alert queue": "aws sqs create-queue --queue-name alert_SELE --endpoint-url http://localhost:4566",
-    "sqs":"npm run hydrometric-queue",
-    "dynamo":"node settings/dynamo_init.js",
-    "create-lambdarole":"aws iam create-role --role-name lambdarole --assume-role-policy-document file://settings/role_policy.json --query 'Role.Arn' --endpoint-url=http://localhost:4566",
-    "assign-role-policy":"aws iam put-role-policy --role-name lambdarole --policy-name lambdapolicy --policy-document file://settings/policy.json --endpoint-url=http://localhost:4566",
-    "zip-hydrometric-func":"rm hydrometric_func.zip; zip hydrometric_func.zip -r ./hydrometric_func/*",
-    "predeploy-hydrometric-func":"npm run create-lambdarole; npm run assign-role-policy; npm run zip-hydrometric-func",
-    "deploy-hydrometric-func":"aws lambda create-function --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --handler ./hydrometric_func/hydrometric_func.handler --runtime nodejs12.x --role arn:aws:iam::000000000000:role/lambdarole --endpoint-url=http://localhost:4566",
-    "postdeploy-hydrometric-func":"rm hydrometric_func.zip",
-    "update-hydrometric-func":"aws lambda update-function-code --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --endpoint-url http://localhost:4566"
+    "sqs": "npm run hydrometric-queue",
+    "dynamo": "node settings/dynamo_init.js",
+    "create-lambdarole": "aws iam create-role --role-name lambdarole --assume-role-policy-document file://settings/role_policy.json --query 'Role.Arn' --endpoint-url=http://localhost:4566",
+    "assign-role-policy": "aws iam put-role-policy --role-name lambdarole --policy-name lambdapolicy --policy-document file://settings/policy.json --endpoint-url=http://localhost:4566",
+    "zip-hydrometric-func": "rm hydrometric_func.zip; zip hydrometric_func.zip -r ./hydrometric_func/*",
+    "predeploy-hydrometric-func": "npm run create-lambdarole; npm run assign-role-policy; npm run zip-hydrometric-func",
+    "deploy-hydrometric-func": "aws lambda create-function --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --handler ./hydrometric_func/hydrometric_func.handler --runtime nodejs12.x --role arn:aws:iam::000000000000:role/lambdarole --endpoint-url=http://localhost:4566",
+    "postdeploy-hydrometric-func": "rm hydrometric_func.zip",
+    "update-hydrometric-func": "aws lambda update-function-code --function-name hydrometric_func --zip-file fileb://hydrometric_func.zip --endpoint-url http://localhost:4566",
+    "create-trigger": "aws events put-rule --name readQueues --schedule-expression 'rate(1 minutes)' --endpoint-url=http://localhost:4566",
+    "trigger-permissions": "aws lambda add-permission --function-name hydrometric_func --statement-id readQueues --action 'lambda:InvokeFunction' --principal events.amazonaws.com --source-arn arn:aws:events:us-east-1:000000000000:rule/readQueues --endpoint-url=http://localhost:4566",
+    "put-trigger": "aws events put-targets --rule readQueues --targets file://settings/targets.json --endpoint-url=http://localhost:4566",
+    "zip-retrieve-data-func": "rm retrieve_data_func.zip; zip retrieve_data_func.zip -r ./retrieve_data_func/*",
+    "predeploy-retrieve-data-func": "npm run create-lambdarole; npm run assign-role-policy; npm run zip-retrieve-data-func",
+    "deploy-retrieve-data-func": "aws lambda create-function --function-name retrieve_data_func --zip-file fileb://retrieve_data_func.zip --handler ./retrieve_data_func/retrieve_data_func.handler --runtime nodejs12.x --role arn:aws:iam::000000000000:role/lambdarole --endpoint-url=http://localhost:4566",
+    "postdeploy-retrieve-data-func": "rm retrieve_data_func.zip; npm run create-function-url",
+    "create-function-url":"aws lambda create-function-url-config --function-name retrieve_data_func --auth-type NONE --endpoint-url http://localhost:4566",
+    "update-retrieve-data-func": "aws lambda update-function-code --function-name retrieve_data_func --zip-file fileb://retrieve_data_func.zip --endpoint-url http://localhost:4566",
+    
+    "start": "npm run sqs; npm run dynamo; npm run create-lambdarole; npm run assign-role-policy; npm run deploy-hydrometric-func; npm run create-trigger; npm run trigger-permissions; npm run put-trigger;"
   },
   "keywords": [
     "iot",
@@ -34,6 +45,6 @@
   "author": "Pasquale Caramante",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1249.0"
+    "aws-sdk": "^2.1264.0"
   }
 }

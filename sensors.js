@@ -3,7 +3,7 @@ AWS.config.update({region:'us-east-1'});
 
 var sqs = new AWS.SQS({endpoint:'http://localhost:4566'});
 
-const n = Math.ceil(Math.random() * 5);
+
 
 sqs.getQueueUrl({
     QueueName:'hydrometric_SELE'
@@ -11,14 +11,14 @@ sqs.getQueueUrl({
     if(err){
         console.log("Can't retrieve QueueUrl",err);
     } else {
-
+        setInterval(() =>{
+        const n = Math.ceil(Math.random() * 5);
         for(var i = 0; i < n; i++){
             var MessageBody = JSON.stringify({
-                river:'SELE',
-                sensor_id: Math.ceil(Math.random()*3),
-                timestamp: Date.now(),
-                depth: Math.random()*50,
-                flow: Math.random()*50,
+                station_id: Math.ceil(Math.random()*3),
+                measured_date: new Date().toISOString(),
+                flow_depth: Math.random()*50,
+                flow_velocity: Math.random()*50,
             });
 
             sqs.sendMessage({
@@ -32,6 +32,7 @@ sqs.getQueueUrl({
                 }
             });
         }
+    }, 30000);
 
 
 
