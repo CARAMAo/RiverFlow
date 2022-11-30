@@ -1,0 +1,25 @@
+{
+  "name": "riverflow-client",
+  "version": "1.0.0",
+  "description": "",
+  "main":"src/index.js",
+  "scripts": {
+    "start": "parcel public/index.html --open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1261.0",
+    "leaflet": "^1.9.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-leaflet": "^4.2.0"
+  },
+  "devDependencies": {
+    "events": "^3.3.0",
+    "parcel": "^2.8.0",
+    "process": "^0.11.10",
+    "punycode": "^1.4.1",
+    "querystring-es3": "^0.2.1"
+  }
+}
