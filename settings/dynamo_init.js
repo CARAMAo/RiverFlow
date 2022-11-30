@@ -10,29 +10,29 @@ var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10',endpoint: 'http://localhost
 var params = {
   AttributeDefinitions: [
     {
-      AttributeName: 'sensor_id',
+      AttributeName: 'station_id',
       AttributeType: 'N'
     },
     {
-      AttributeName: 'river',
+      AttributeName: 'measured_date',
       AttributeType: 'S',
     }
   ],
   KeySchema: [
     {
-      AttributeName: 'river',
-      KeyType:'HASH',
+      AttributeName: 'station_id',
+      KeyType: 'HASH'
     },
     {
-      AttributeName: 'sensor_id',
-      KeyType: 'RANGE'
-    },
+      AttributeName: 'measured_date',
+      KeyType: 'RANGE',
+    }
   ],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1
   },
-  TableName: 'river',
+  TableName: 'hydrometric_data_sele',
   StreamSpecification: {
     StreamEnabled: false
   }
@@ -43,8 +43,50 @@ ddb.createTable(params, function(err, data) {
   if (err) {
     console.log("Error", err);
   } else {
-    console.log("River table created", data);
+    console.log("Hydrometric data table created", data);
   }
 });
+
+//create Station table
+ddb.createTable({
+  AttributeDefinitions:[
+    {
+      AttributeName:"station_id",
+      AttributeType:"N"
+    }
+  ],
+  KeySchema:[
+    {
+      AttributeName:"station_id",
+      KeyType:"HASH"
+    }
+  ],
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 3,
+    WriteCapacityUnits: 3
+  },
+  TableName: 'stations',
+}, (err,data) => {
+  if(err){
+    console.log("Error creating stations table",err);
+  } else {
+    console.log("Stations table successfully created",data);
+
+    const station_data = require('./stations.json');
+    station_data.forEach(Item => {
+      ddb.putItem({
+        TableName:'stations',
+        Item,
+      }, (err,data) => {
+        if(err){
+          console.log("Error adding Item",err);
+        } else {
+          console.log("Item successfully added");
+        }
+      })
+    })
+  }
+}
+)
 
 
