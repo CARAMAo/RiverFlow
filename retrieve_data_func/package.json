@@ -1,0 +1,6 @@
+{
+	"name": "hydrometric_func",
+	"dependencies": {
+		"aws-sdk": "^2.1233.0"
+	}
+}
