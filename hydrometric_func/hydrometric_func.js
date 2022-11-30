@@ -29,41 +29,22 @@ exports.handler = () => {
                         }
 
 
-                        var measured_data_array = data.Messages.map( m => JSON.parse(m.Body));
-                        
-                        
-                        var grouped_data = Object.values(measured_data_array.reduce( (items,el) => {
-                            items[el.sensor_id] = [...(items[el.sensor_id] || []), el];
-                            return items;
-                        },[]));
+                        var Items = data.Messages.map( m => {
 
-                        console.log("received:",grouped_data);
-                        
-                        var Items = grouped_data.map( arr => {
-                            arr.sort( (a,b) => b.timestamp - a.timestamp);
-                            var avg_depth = arr.reduce( (total,element) => total+element.depth,0)/arr.length;
-                            var avg_flow = arr.reduce( (total,element) => total+element.flow,0)/arr.length;
-                            var last_measured_timestamp = arr[0].timestamp;
-                            var last_measured_depth = arr[0].depth;
-                            var last_measured_flow = arr[0].flow;
+                            const payload = JSON.parse(m.Body);
+                            console.log(payload);
                             return {
-                                "river":{S:"SELE"},
-                                "sensor_id": {N:arr[0].sensor_id.toString()},
-                                "avg_depth":{N:avg_depth.toString()},
-                                "last_measured_depth":{N:last_measured_depth.toString()},
-                                "avg_flow":{N:avg_flow.toString()},
-                                "last_measured_flow":{N:last_measured_flow.toString()},
-                                "last_measured_timestamp":{S:new Date(last_measured_timestamp).toISOString()},
-
+                                station_id:{N: payload.station_id.toString()},
+                                measured_date:{S: payload.measured_date},
+                                flow_depth:{N: payload.flow_depth.toString()},
+                                flow_velocity:{N: payload.flow_velocity.toString()}
                             }
-
                         });
-
 
                         //TODO: store in ddb
                         for(const Item of Items){
                             dynamo.putItem({
-                                TableName:'river',
+                                TableName:'hydrometric_data_sele',
                                 Item,
                             }, (err,data) => {
                                 if(err){
